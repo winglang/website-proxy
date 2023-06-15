@@ -1,0 +1,3 @@
+{
+  "//": "This is needed for TerraformAsset to work with relative paths :/"
+}
