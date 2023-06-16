@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "compile": "wing compile -t tf-aws main.w",
+    "deploy": "cd target/main.tfaws && terraform init && terraform apply -auto-approve -input=false",
+    "redirect:compile": "wing compile -t tf-aws redirect.w",
+    "redirect:deploy": "cd target/redirect.tfaws && terraform init && terraform apply -auto-approve -input=false"
+  },
   "dependencies": {
     "@cdktf/provider-aws": "^14.0.4",
     "cdktf": "^0.16.1"

@@ -21,8 +21,10 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 
 ## Roadmap
 
-- [ ] Refactor the code a bit for better readability
-- [ ] Replace [forwardValues](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html) with [policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html) since `forwardValues` is deprecated
+- [x] Refactor the code a bit for better readability
+- [x] Fix / and missing assets
+- [x] Replace [forwardValues](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html) with [policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html) since `forwardValues` is deprecated
+- [ ] Provide correct redirect logic in redirect distribution
 - [ ] Create new AWS account for deployment
 - [ ] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
 - [ ] Github Action for deployment
