@@ -21,8 +21,8 @@ function handler(event) {
     }
 
     var response = {
-        statusCode: 302,
-        statusDescription: 'Found',
+        statusCode: 301,
+        statusDescription: 'Moved Permanently',
         headers: { "location": { "value": newurl } }
     }
 
