@@ -1,6 +1,12 @@
 bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
+bring "@cdktf/provider-dnsimple" as dnsimple;
+
+new dnsimple.provider.DnsimpleProvider();
+
+let zoneName = "winglang.ai";
+let subDomain = "docs";
 
 let handlerFile = new cdktf.TerraformAsset(
   path: "./redirect.handler.js",
@@ -15,50 +21,70 @@ let handler = new aws.cloudfrontFunction.CloudfrontFunction(
   publish: true
 );
 
-let cert = new aws.acmCertificate.AcmCertificate(
-  domainName: "docs.test.winglang.ai",
-  validationMethod: "DNS"
-);
+struct DnsimpleValidatedCertificateProps {
+  domainName: str;
+  zoneName: str;
+}
 
-let zone = new aws.dataAwsRoute53Zone.DataAwsRoute53Zone(
-  name: "test.winglang.ai.",
-  privateZone: false
-);
+class DnsimpleValidatedCertificate {
+  resource: aws.acmCertificate.AcmCertificate;
 
-// this gets ugly, but it's the only way to get the validation records
-// https://github.com/hashicorp/terraform-cdk/issues/2178
-let record = new aws.route53Record.Route53Record(
-  name: "\${each.value.name}",
-  type: "\${each.value.type}",
-  records: [
-    "\${each.value.record}"
-  ],
-  zoneId: zone.zoneId,
-  ttl: 60,
-  allowOverwrite: true
-);
+  init(props: DnsimpleValidatedCertificateProps) {
+    let domainName = props.domainName;
+    let zoneName = props.zoneName;
 
-record.addOverride("for_each", "\${{
-    for dvo in ${cert.fqn}.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
+    this.resource = new aws.acmCertificate.AcmCertificate(
+      domainName: domainName,
+      validationMethod: "DNS",
+    );
+
+    // waits for https://github.com/winglang/wing/issues/2597
+    this.resource.addOverride("lifecycle", {
+      create_before_destroy: true
+    });
+
+    // this gets ugly, but it's the only way to get the validation records
+    // https://github.com/hashicorp/terraform-cdk/issues/2178
+    let record = new dnsimple.zoneRecord.ZoneRecord(
+      name: "replaced",
+      type: "\${each.value.type}",
+      value: "replaced",
+      zoneName: zoneName,
+      ttl: 60,
+    );
+
+    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.ai.", ""), but that didn't work
+    // since "each.value.name" isn't interpolated properly
+    record.addOverride("name", "\${replace(each.value.name, \".winglang.ai.\", \"\")}");
+    record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
+    record.addOverride("for_each", "\${{
+        for dvo in ${this.resource.fqn}.domain_validation_options : dvo.domain_name => {
+          name   = dvo.resource_record_name
+          record = dvo.resource_record_value
+          type   = dvo.resource_record_type
+        }
+      }
+    }");
+
+    let certValidation = new aws.acmCertificateValidation.AcmCertificateValidation(
+      certificateArn: this.resource.arn
+    );
+
+    certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.qualified_name]}");
   }
-}");
+}
 
-let certValidation = new aws.acmCertificateValidation.AcmCertificateValidation(
-  certificateArn: cert.arn
+let cert = new DnsimpleValidatedCertificate(
+  domainName: "${subDomain}.${zoneName}",
+  zoneName: zoneName
 );
-
-certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.fqdn]}");
 
 let disribution = new aws.cloudfrontDistribution.CloudfrontDistribution(
   enabled: true,
   isIpv6Enabled: true,
 
   viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
-    acmCertificateArn: cert.arn,
+    acmCertificateArn: cert.resource.arn,
     sslSupportMethod: "sni-only"
   },
 
@@ -70,11 +96,11 @@ let disribution = new aws.cloudfrontDistribution.CloudfrontDistribution(
 
   origin: [{
     originId: "stub",
-    domainName: "stub.winglang.ai",
+    domainName: "stub.${zoneName}",
   }],
 
   aliases: [
-    "docs.test.winglang.ai",
+    "${subDomain}.${zoneName}",
   ],
 
   defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
@@ -106,20 +132,12 @@ disribution.addOverride("origin.0.custom_origin_config", {
   origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
 });
 
-
-let domain = new aws.route53Record.Route53Record(
-  name: "docs.test.winglang.ai",
-  type: "A",
-  zoneId: zone.zoneId,
-  alias: aws.route53Record.Route53RecordAlias {
-    name: disribution.domainName,
-    zoneId: disribution.hostedZoneId,
-    evaluateTargetHealth: true
-  }
-) as "docs.winglang.ai";
+new dnsimple.zoneRecord.ZoneRecord(
+  name: subDomain,
+  type: "CNAME",
+  value: disribution.domainName,
+  zoneName: zoneName,
+  ttl: 60
+);
 
 
-// not working yet because of https://github.com/winglang/wing/issues/1878
-// test "docs.test.winglang.ai" {
-//   assert(domain.fqdn == "docs.test.winglang.ai");
-// }
