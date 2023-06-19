@@ -1,7 +1,10 @@
 bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
-// https://vercel.com/guides/can-i-use-a-proxy-on-top-of-my-vercel-deployment
+
+let domainName = "test.winglang.ai";
+let defaultOrigin = "winglang.webflow.io";
+let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
 struct Route53ValidatedCertificateProps {
   domainName: str;
@@ -101,11 +104,11 @@ class ReverseProxyDistribution {
 
       origin: [{
         originId: "docs",
-        domainName: "wing-docs-git-docs-base-path-test-monada.vercel.app",
+        domainName: docsOrigin,
       },
       {
         originId: "home",
-        domainName: "winglang.webflow.io",
+        domainName: defaultOrigin,
       }],
 
       aliases: aliases,
@@ -173,8 +176,6 @@ class ReverseProxyDistribution {
     });
   }
 }
-
-let domainName = "test.winglang.ai";
 
 let zone = new aws.dataAwsRoute53Zone.DataAwsRoute53Zone(
   name: "${domainName}.",
