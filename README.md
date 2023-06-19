@@ -25,6 +25,7 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 - [x] Fix / and missing assets
 - [x] Replace [forwardValues](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html) with [policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html) since `forwardValues` is deprecated
 - [x] Provide correct redirect logic in redirect distribution
+- [ ] winglang.io needs to point to the distribution. Since all DNS should still be handled in dnsimple, there needs to be manual wiring of certificate and domain
 - [ ] Create new AWS account for deployment
 - [ ] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
 - [ ] Github Action for deployment
