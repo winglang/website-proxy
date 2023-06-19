@@ -1,41 +1,49 @@
 bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
+bring "@cdktf/provider-dnsimple" as dnsimple;
 
-let domainName = "test.winglang.ai";
+new dnsimple.provider.DnsimpleProvider();
+
+let domainName = "winglang.ai";
+
 let defaultOrigin = "winglang.webflow.io";
 let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
-struct Route53ValidatedCertificateProps {
+struct DnsimpleValidatedCertificateProps {
   domainName: str;
-  zone: aws.dataAwsRoute53Zone.DataAwsRoute53Zone;
 }
 
-class Route53ValidatedCertificate {
+class DnsimpleValidatedCertificate {
   resource: aws.acmCertificate.AcmCertificate;
 
-  init(props: Route53ValidatedCertificateProps) {
+  init(props: DnsimpleValidatedCertificateProps) {
     let domainName = props.domainName;
-    let zone = props.zone;
 
     this.resource = new aws.acmCertificate.AcmCertificate(
       domainName: domainName,
-      validationMethod: "DNS"
+      validationMethod: "DNS",
     );
+
+    // waits for https://github.com/winglang/wing/issues/2597
+    this.resource.addOverride("lifecycle", {
+      create_before_destroy: true
+    });
 
     // this gets ugly, but it's the only way to get the validation records
     // https://github.com/hashicorp/terraform-cdk/issues/2178
-    let record = new aws.route53Record.Route53Record(
-      name: "\${each.value.name}",
+    let record = new dnsimple.zoneRecord.ZoneRecord(
+      name: "replaced",
       type: "\${each.value.type}",
-      records: [
-        "\${each.value.record}"
-      ],
-      zoneId: zone.zoneId,
+      value: "replaced",
+      zoneName: domainName,
       ttl: 60,
-      allowOverwrite: true
     );
 
+    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.ai.", ""), but that didn't work
+    // since "each.value.name" isn't interpolated properly
+    record.addOverride("name", "\${replace(each.value.name, \".${domainName}.\", \"\")}");
+    record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
     record.addOverride("for_each", "\${{
         for dvo in ${this.resource.fqn}.domain_validation_options : dvo.domain_name => {
           name   = dvo.resource_record_name
@@ -49,12 +57,12 @@ class Route53ValidatedCertificate {
       certificateArn: this.resource.arn
     );
 
-    certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.fqdn]}");
+    certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.qualified_name]}");
   }
 }
 
 struct ReverseProxyDistributionProps {
-  cert: Route53ValidatedCertificate;
+  cert: DnsimpleValidatedCertificate;
   aliases: Array<str>;
 }
 
@@ -177,14 +185,8 @@ class ReverseProxyDistribution {
   }
 }
 
-let zone = new aws.dataAwsRoute53Zone.DataAwsRoute53Zone(
-  name: "${domainName}.",
-  privateZone: false
-);
-
-let cert = new Route53ValidatedCertificate(
+let cert = new DnsimpleValidatedCertificate(
   domainName: domainName,
-  zone: zone
 );
 
 let disribution = new ReverseProxyDistribution(
@@ -192,13 +194,10 @@ let disribution = new ReverseProxyDistribution(
   cert: cert
 );
 
-let domain = new aws.route53Record.Route53Record(
-  name: domainName,
-  type: "A",
-  zoneId: zone.zoneId,
-  alias: aws.route53Record.Route53RecordAlias {
-    name: disribution.domainName(),
-    zoneId: disribution.hostedZoneId(),
-    evaluateTargetHealth: true
-  }
+new dnsimple.zoneRecord.ZoneRecord(
+  name: "",
+  type: "ALIAS",
+  value: disribution.domainName(),
+  zoneName: domainName,
+  ttl: 60
 );

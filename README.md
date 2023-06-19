@@ -26,12 +26,13 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 - [x] Fix / and missing assets
 - [x] Replace [forwardValues](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html) with [policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html) since `forwardValues` is deprecated
 - [x] Provide correct redirect logic in redirect distribution
-- [ ] winglang.io needs to point to the distribution. Since all DNS should still be handled in dnsimple, there needs to be manual wiring of certificate and domain
-- [ ] Create new AWS account for deployment
+- [x] winglang.io needs to point to the distribution. Since all DNS should still be handled in dnsimple, there needs to be manual wiring of certificate and domain
+- [x] Create new AWS account for deployment (using website)
 - [ ] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
 - [ ] Github Action for deployment
 - [ ] Is there some website monitoring in place somewhere (should be updated or created)?
-- [ ] Use correct domain rather than the winglang.ai placeholder
+- [ ] Use correct domain rather than the winglang.ai placeholder (in [./redirect.w](./redirect.w) and [./main.w](./main.w))
+- [ ] Make sure to update [redirect handler](./redirect.handler.js) as well
 
 # Redirect (temporary)
 
@@ -42,7 +43,7 @@ A pure redirect Cloudfront distribution, redirecting:
 
 That's implemented via [Cloudfront Functions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html) for simplicity reasons.
 
-See [./redirect.w](./redirect.w) and [./redirect.handler.js](./redirect.handler.js) and the tests [./cfn-fn.test.js](./cfn-fn.test.js)
+See [./redirect.w](./redirect.w) and [./redirect.handler.js](./redirect.handler.js) and the tests [./redirect.handler.test.js](./redirect.handler.test.js)
 
 The test can be executed after the distribution is deployed. Can be simplified and inlined into Wing once https://github.com/winglang/wing/issues/1878 is there.
 

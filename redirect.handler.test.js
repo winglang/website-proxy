@@ -55,7 +55,7 @@ describe("full integration test", () => {
     test("it redirectst to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
-      expect(locationHeader).toEqual('https://test.winglang.ai/docs/');
+      expect(locationHeader).toEqual('https://winglang.ai/docs/');
     });
   });
 
@@ -101,7 +101,7 @@ describe("full integration test", () => {
     test("it redirectst to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
-      expect(locationHeader).toEqual('https://test.winglang.ai/docs/a-nested-path');
+      expect(locationHeader).toEqual('https://winglang.ai/docs/a-nested-path');
     });
   });
 
@@ -148,7 +148,7 @@ describe("full integration test", () => {
     test("it redirectst to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
-      expect(locationHeader).toEqual('https://test.winglang.ai/blog/12/93/a-blog-post');
+      expect(locationHeader).toEqual('https://winglang.ai/blog/12/93/a-blog-post');
     });
   });
 
@@ -194,7 +194,7 @@ describe("full integration test", () => {
     test("it redirectst to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
-      expect(locationHeader).toEqual('https://test.winglang.ai/docs/a-doc-page?foo=bar&baz=qux');
+      expect(locationHeader).toEqual('https://winglang.ai/docs/a-doc-page?foo=bar&baz=qux');
     });
   });
 });

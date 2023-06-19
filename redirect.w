@@ -55,7 +55,7 @@ class DnsimpleValidatedCertificate {
 
     // tried name: cdktf.Fn.replace("each.value.name", ".winglang.ai.", ""), but that didn't work
     // since "each.value.name" isn't interpolated properly
-    record.addOverride("name", "\${replace(each.value.name, \".winglang.ai.\", \"\")}");
+    record.addOverride("name", "\${replace(each.value.name, \".${zoneName}.\", \"\")}");
     record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
     record.addOverride("for_each", "\${{
         for dvo in ${this.resource.fqn}.domain_validation_options : dvo.domain_name => {
@@ -139,5 +139,3 @@ new dnsimple.zoneRecord.ZoneRecord(
   zoneName: zoneName,
   ttl: 60
 );
-
-
