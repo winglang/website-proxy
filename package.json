@@ -3,10 +3,15 @@
     "compile": "wing compile -t tf-aws main.w",
     "deploy": "cd target/main.tfaws && terraform init && terraform apply -auto-approve -input=false",
     "redirect:compile": "wing compile -t tf-aws redirect.w",
-    "redirect:deploy": "cd target/redirect.tfaws && terraform init && terraform apply -auto-approve -input=false"
+    "redirect:deploy": "cd target/redirect.tfaws && terraform init && terraform apply -auto-approve -input=false",
+    "test": "vitest"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.354.0",
     "@cdktf/provider-aws": "^14.0.4",
     "cdktf": "^0.16.1"
+  },
+  "devDependencies": {
+    "vitest": "^0.32.2"
   }
 }

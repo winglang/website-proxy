@@ -8,9 +8,10 @@ This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (cur
 ## Behaviors
 
 - by default, all requests are routed to the `Homepage` (winglang.webflow.io)
-- `/docs` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
-- `/blog` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
-- `/assets` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
+- `/(docs|docs/*)` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
+- `/(blog|blog/*)` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
+- `/assets/*` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
+- `/img/*` is routed to the `Docsite` (https://docsite-omega.vercel.app/)
 
 This means:
 
@@ -41,6 +42,8 @@ A pure redirect Cloudfront distribution, redirecting:
 
 That's implemented via [Cloudfront Functions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html) for simplicity reasons.
 
-See [./redirect.w](./redirect.w) and [./redirect.handler.js](./redirect.handler.js)
+See [./redirect.w](./redirect.w) and [./redirect.handler.js](./redirect.handler.js) and the tests [./cfn-fn.test.js](./cfn-fn.test.js)
+
+The test can be executed after the distribution is deployed. Can be simplified and inlined into Wing once https://github.com/winglang/wing/issues/1878 is there.
 
 The entire redirect distribution can be dropped once the traffic goes away.
