@@ -28,8 +28,8 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 - [x] Provide correct redirect logic in redirect distribution
 - [x] winglang.io needs to point to the distribution. Since all DNS should still be handled in dnsimple, there needs to be manual wiring of certificate and domain
 - [x] Create new AWS account for deployment (using website)
-- [ ] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
-- [ ] Github Action for deployment
+- [x] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
+- [x] Github Action for deployment
 - [ ] Is there some website monitoring in place somewhere (should be updated or created)?
 - [ ] Use correct domain rather than the winglang.ai placeholder (in [./redirect.w](./redirect.w) and [./main.w](./main.w))
 - [ ] Make sure to update [redirect handler](./redirect.handler.js) as well
