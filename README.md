@@ -1,6 +1,6 @@
 # Website Proxy
 
-This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (currently deployed as [test.winglang.ai](https://test.winglang.ai)) to unify the underlying targets:
+This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (currently deployed as [winglang.ai](https://winglang.ai) and [docs1.winglang.ai](https://docs1.winglang.ai)) to unify the underlying targets:
 
 - [Docsite](https://docsite-omega.vercel.app/) which is serving `docs` and `blog` content as a [Docusaurus](https://docusaurus.io/) app hosted on Vercel. The code can be found [here](https://github.com/winglang/docsite)
 - [Homepage](https://winglang.webflow.io) - which is a [webflow](https://webflow.com/) site and serving landing pages including the main landing page
