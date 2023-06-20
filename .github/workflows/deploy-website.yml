@@ -2,6 +2,8 @@ name: Deploy Website Distribution
 
 on:
   push:
+    paths-ignore:
+      - '**/*.md'
     branches: [ main ]
 
 concurrency:

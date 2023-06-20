@@ -2,6 +2,8 @@ name: Deploy and Test Redirect Distribution
 
 on:
   push:
+    paths-ignore:
+      - '**/*.md'
     branches: [ main ]
 
 concurrency:
