@@ -1,9 +1,11 @@
 {
   "scripts": {
     "compile": "wing compile -t tf-aws main.w",
+    "compile:prod": "STATE_FILE=prod/website-proxy.tfstate wing compile -t tf-aws main.w --plugins ./plugin.backend.js",
     "plan": "cd target/main.tfaws && terraform init && terraform plan -input=false",
     "deploy": "cd target/main.tfaws && terraform init && terraform apply -auto-approve -input=false",
     "redirect:compile": "wing compile -t tf-aws redirect.w",
+    "redirect:compile:prod": "STATE_FILE=prod/redirect.tfstate wing compile -t tf-aws redirect.w --plugins ./plugin.backend.js",
     "redirect:plan": "cd target/redirect.tfaws && terraform init && terraform plan -input=false",
     "redirect:deploy": "cd target/redirect.tfaws && terraform init && terraform apply -auto-approve -input=false",
     "test": "vitest"
