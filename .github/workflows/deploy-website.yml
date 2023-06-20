@@ -31,6 +31,8 @@ jobs:
           node-version: 18
       - name: Install winglang globally
         run: npm install -g winglang
+      - name: Install Dependencies
+        run: npm ci
       - name: Compile
         run: npm run compile:prod
       - name: Configure AWS credentials
