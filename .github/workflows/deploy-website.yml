@@ -34,7 +34,7 @@ jobs:
           role-session-name: gh-actions-winglang-website-proxy
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy Winglang App
-        uses: winglang/wing-github-action@f15d6dbe83df81ab895ae12bb30ee1dd0d117e78
+        uses: winglang/wing-github-action@main
         with:
           version: '0.21.5'
           entry: 'main.w'
