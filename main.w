@@ -6,7 +6,6 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 new dnsimple.provider.DnsimpleProvider();
 
 let domainName = "winglang.ai";
-
 let defaultOrigin = "winglang.webflow.io";
 let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
