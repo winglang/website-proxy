@@ -6,7 +6,7 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 new dnsimple.provider.DnsimpleProvider();
 
 let zoneName = "winglang.ai";
-let subDomain = "docs1";
+let subDomain = "docs";
 
 let handlerFile = new cdktf.TerraformAsset(
   path: "./redirect.handler.js",
