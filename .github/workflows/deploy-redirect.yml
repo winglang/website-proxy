@@ -27,24 +27,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Setup Node.js v18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install winglang globally
-        # see https://github.com/winglang/wing/issues/2934
-        run: npm install -g winglang@0.21.5
-      - name: Install Dependencies
-        run: npm ci
-      - name: Compile
-        run: npm run redirect:compile:prod
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: gh-actions-winglang-website-proxy
           aws-region: ${{ env.AWS_REGION }}
-      - name: Deploy redirects
-        run: npm run redirect:deploy
-      - name: Run tests
-        run: npm run test
+      - name: Deploy Winglang App
+        uses: winglang/wing-github-action@main
+        with:
+          version: '0.21.5'
+          entry: 'redirect.w'
+          target: 'tf-aws'
+          backend-scope: 'redirect'
