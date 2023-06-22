@@ -190,7 +190,7 @@ class ReverseProxyDistribution {
 
 let cert = new DnsimpleValidatedCertificate(
   zoneName: zoneName,
-  domainName: subDomain
+  domainName: "${subDomain}.${zoneName}"
 );
 
 let disribution = new ReverseProxyDistribution(
