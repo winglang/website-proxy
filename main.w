@@ -5,7 +5,7 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 
 new dnsimple.provider.DnsimpleProvider();
 
-let domainName = "winglang.ai";
+let domainName = "winglang.io";
 let defaultOrigin = "winglang.webflow.io";
 let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
@@ -39,7 +39,7 @@ class DnsimpleValidatedCertificate {
       ttl: 60,
     );
 
-    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.ai.", ""), but that didn't work
+    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.io.", ""), but that didn't work
     // since "each.value.name" isn't interpolated properly
     record.addOverride("name", "\${replace(each.value.name, \".${domainName}.\", \"\")}");
     record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");

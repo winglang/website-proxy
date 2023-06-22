@@ -5,7 +5,7 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 
 new dnsimple.provider.DnsimpleProvider();
 
-let zoneName = "winglang.ai";
+let zoneName = "winglang.io";
 let subDomain = "docs";
 
 let handlerFile = new cdktf.TerraformAsset(
@@ -53,7 +53,7 @@ class DnsimpleValidatedCertificate {
       ttl: 60,
     );
 
-    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.ai.", ""), but that didn't work
+    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.io.", ""), but that didn't work
     // since "each.value.name" isn't interpolated properly
     record.addOverride("name", "\${replace(each.value.name, \".${zoneName}.\", \"\")}");
     record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
