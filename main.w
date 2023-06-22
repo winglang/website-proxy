@@ -5,12 +5,15 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 
 new dnsimple.provider.DnsimpleProvider();
 
-let domainName = "winglang.io";
+let zoneName = "winglang.io";
+let subDomain = "www";
+
 let defaultOrigin = "winglang.webflow.io";
 let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
+  zoneName: str;
 }
 
 class DnsimpleValidatedCertificate {
@@ -18,6 +21,7 @@ class DnsimpleValidatedCertificate {
 
   init(props: DnsimpleValidatedCertificateProps) {
     let domainName = props.domainName;
+    let zoneName = props.zoneName;
 
     this.resource = new aws.acmCertificate.AcmCertificate(
       domainName: domainName,
@@ -35,13 +39,13 @@ class DnsimpleValidatedCertificate {
       name: "replaced",
       type: "\${each.value.type}",
       value: "replaced",
-      zoneName: domainName,
+      zoneName: zoneName,
       ttl: 60,
     );
 
     // tried name: cdktf.Fn.replace("each.value.name", ".winglang.io.", ""), but that didn't work
     // since "each.value.name" isn't interpolated properly
-    record.addOverride("name", "\${replace(each.value.name, \".${domainName}.\", \"\")}");
+    record.addOverride("name", "\${replace(each.value.name, \".${zoneName}.\", \"\")}");
     record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
     record.addOverride("for_each", "\${{
         for dvo in ${this.resource.fqn}.domain_validation_options : dvo.domain_name => {
@@ -185,18 +189,19 @@ class ReverseProxyDistribution {
 }
 
 let cert = new DnsimpleValidatedCertificate(
-  domainName: domainName,
+  zoneName: zoneName,
+  domainName: subDomain
 );
 
 let disribution = new ReverseProxyDistribution(
-  aliases: [domainName],
+  aliases: ["${subDomain}.${zoneName}}"],
   cert: cert
 );
 
 new dnsimple.zoneRecord.ZoneRecord(
-  name: "",
-  type: "ALIAS",
+  name: subDomain,
+  type: "CNAME",
   value: disribution.domainName(),
-  zoneName: domainName,
+  zoneName: zoneName,
   ttl: 60
 );

@@ -4,9 +4,9 @@ function handler(event) {
 
     // Check if the URI starts with '/blog'. If so, redirect to "https://docs.winglang.io/blog".
     if(request.uri.startsWith('/blog')) {
-        newurl = `https://winglang.io${request.uri}`;
+        newurl = `https://www.winglang.io${request.uri}`;
     } else {
-        newurl = `https://winglang.io/docs${request.uri}`;
+        newurl = `https://www.winglang.io/docs${request.uri}`;
     }
 
     // If there are querystring parameters, add them to the newurl.
