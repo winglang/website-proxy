@@ -9,7 +9,7 @@ let zoneName = "winglang.io";
 let subDomain = "www";
 
 let defaultOrigin = "webflow.winglang.io";
-let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
+let docsOrigin = "docsite-omega.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
