@@ -194,7 +194,7 @@ let cert = new DnsimpleValidatedCertificate(
 );
 
 let disribution = new ReverseProxyDistribution(
-  aliases: ["${subDomain}.${zoneName}}"],
+  aliases: ["${subDomain}.${zoneName}"],
   cert: cert
 );
 
