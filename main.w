@@ -8,7 +8,7 @@ new dnsimple.provider.DnsimpleProvider();
 let zoneName = "winglang.io";
 let subDomain = "www";
 
-let defaultOrigin = "winglang.webflow.io";
+let defaultOrigin = "webflow.winglang.io";
 let docsOrigin = "wing-docs-git-docs-base-path-test-monada.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
