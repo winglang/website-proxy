@@ -22,7 +22,7 @@ env:
   DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
 
 jobs:
-  deploy:
+  diff:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
