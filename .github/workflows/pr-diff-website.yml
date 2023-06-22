@@ -1,4 +1,4 @@
-name: Deploy Website Distribution
+name: Pull Request Diff
 
 on:
   pull_request:
