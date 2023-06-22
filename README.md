@@ -30,9 +30,9 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 - [x] Create new AWS account for deployment (using website)
 - [x] OIDC setup in https://github.com/winglang/examples-baseline (needs to be renamed)
 - [x] Github Action for deployment
-- [ ] Is there some website monitoring in place somewhere (should be updated or created)?
-- [ ] Use correct domain rather than the winglang.ai placeholder (in [./redirect.w](./redirect.w) and [./main.w](./main.w))
-- [ ] Make sure to update [redirect handler](./redirect.handler.js) as well
+- [x] Is there some website monitoring in place somewhere (should be updated or created)? Yes, there is. See #alert in Slack
+- [x] Use correct domain rather than the winglang.ai placeholder (in [./redirect.w](./redirect.w) and [./main.w](./main.w))
+- [x] Make sure to update [redirect handler](./redirect.handler.js) as well
 
 Depending on if this repo should be open sourced or not, the dnsimple handling could either stay here and being handled automatically as it is right now or remove it after the intial deployment (if open sourcing). If the dnsimple tokens were leaked for some reason, this would be pretty bad. While it's possible in dnsimple to have "zone manager" users and limit them to one domain only, it's not possible to be more granular than that.
 
