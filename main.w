@@ -128,7 +128,7 @@ class ReverseProxyDistribution {
         minTtl: 0,
         defaultTtl: 60,
         maxTtl: 86400,
-        allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
+        allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH"],
         cachedMethods: ["GET", "HEAD"],
         targetOriginId: "home",
         viewerProtocolPolicy: "redirect-to-https",
