@@ -142,6 +142,8 @@ class ReverseProxyDistribution {
         this.docsBehavior("/blog/*"),
         this.docsBehavior("/assets/*"),
         this.docsBehavior("/img/*"),
+        this.docsBehavior("/contributing"),
+        this.docsBehavior("/contributing/*"),
       ],
     );
 
