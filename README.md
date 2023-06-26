@@ -10,7 +10,7 @@ This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (cur
 - by default, all requests are routed to the `Homepage` (winglang.webflow.io)
 - `/(docs|docs/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/(blog|blog/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
-- `/(contributors|contributors/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
+- `/(contributing|contributing/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/assets/*` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/img/*` is routed to the `Docsite` (docsite-omega.vercel.app)
 
@@ -42,7 +42,7 @@ Depending on if this repo should be open sourced or not, the dnsimple handling c
 A pure redirect Cloudfront distribution, redirecting:
 
 - docs.winglang.io/blog/* -> winglang.io/blog
-- docs.winglang.io/contributors/* -> winglang.io/contributors
+- docs.winglang.io/contributing/* -> winglang.io/contributing
 - docs.winglang.io/* -> winglang.io/docs
 
 That's implemented via [Cloudfront Functions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html) for simplicity reasons.

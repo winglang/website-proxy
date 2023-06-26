@@ -3,7 +3,7 @@ function handler(event) {
     var newurl;
 
     // redirect spacial paths in our docs. f.e: Check if the URI starts with '/blog'. If so, redirect to "https://docs.winglang.io/blog".
-    if(request.uri.startsWith('/blog') || request.uri.startsWith('/contributors')) {
+    if(request.uri.startsWith('/blog') || request.uri.startsWith('/contributing')) {
         newurl = `https://www.winglang.io${request.uri}`;
     } else {
         newurl = `https://www.winglang.io/docs${request.uri}`;
