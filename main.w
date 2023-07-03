@@ -137,9 +137,6 @@ class ReverseProxyDistribution {
       aliases: aliases,
 
       defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
-        minTtl: 0,
-        defaultTtl: 60,
-        maxTtl: 86400,
         allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
         cachedMethods: ["GET", "HEAD"],
         targetOriginId: "home",
@@ -175,9 +172,6 @@ class ReverseProxyDistribution {
   docsBehavior(pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
     return aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
       pathPattern: pathPattern,
-      minTtl: 0,
-      defaultTtl: 60,
-      maxTtl: 86400,
       allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
       cachedMethods: ["GET", "HEAD"],
       targetOriginId: "docs",
