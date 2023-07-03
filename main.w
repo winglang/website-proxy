@@ -2,8 +2,20 @@ bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
 bring "@cdktf/provider-dnsimple" as dnsimple;
+bring "@cdktf/provider-http" as httpProvider;
 
+new httpProvider.provider.HttpProvider();
 new dnsimple.provider.DnsimpleProvider();
+
+let check = new httpProvider.dataHttp.DataHttp(
+  url: "https://www.winglang.io",
+  lifecycle: cdktf.TerraformResourceLifecycle {
+    postcondition: [cdktf.Postcondition {
+      condition: "\${contains([200], self.status_code)}",
+      errorMessage: "Expected status code 200"
+    }]
+  }
+);
 
 let zoneName = "winglang.io";
 let subDomain = "www";
@@ -202,10 +214,13 @@ let disribution = new ReverseProxyDistribution(
   cert: cert
 );
 
-new dnsimple.zoneRecord.ZoneRecord(
+let record = new dnsimple.zoneRecord.ZoneRecord(
   name: subDomain,
   type: "CNAME",
   value: disribution.domainName(),
   zoneName: zoneName,
-  ttl: 60
+  ttl: 60,
 );
+
+// see https://github.com/winglang/wing/issues/2976
+check.addOverride("depends_on", "${record.terraformResourceType}.${record.friendlyUniqueId}");
