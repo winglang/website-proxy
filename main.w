@@ -223,4 +223,7 @@ let record = new dnsimple.zoneRecord.ZoneRecord(
 );
 
 // see https://github.com/winglang/wing/issues/2976
-check.addOverride("depends_on", ["${record.terraformResourceType}.${record.friendlyUniqueId}"]);
+check.addOverride("depends_on", [
+  "${record.terraformResourceType}.${record.friendlyUniqueId}",
+  "${disribution.resource.terraformResourceType}.${disribution.resource.friendlyUniqueId}",
+]);
