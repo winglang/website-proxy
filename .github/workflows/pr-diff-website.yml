@@ -36,7 +36,6 @@ jobs:
       - name: Deploy Winglang App
         uses: winglang/wing-github-action/actions/pull-request-diff@main
         with:
-          version: '0.21.5'
           entry: 'main.w'
           target: 'tf-aws'
           github-token: ${{ secrets.GITHUB_TOKEN }}

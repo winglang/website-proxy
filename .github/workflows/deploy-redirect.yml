@@ -36,7 +36,6 @@ jobs:
       - name: Deploy Winglang App
         uses: winglang/wing-github-action@583c7e5d84237020651919ead00f7d9e3ded3e5a
         with:
-          version: '0.21.5'
           entry: 'redirect.w'
           target: 'tf-aws'
           backend-scope: 'redirect'
