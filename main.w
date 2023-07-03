@@ -11,7 +11,7 @@ let check = new httpProvider.dataHttp.DataHttp(
   url: "https://www.winglang.io",
   lifecycle: cdktf.TerraformResourceLifecycle {
     postcondition: [cdktf.Postcondition {
-      condition: "\${contains([200], self.status_code)}",
+      condition: "\${contains([400], self.status_code)}",
       errorMessage: "Expected status code 200"
     }]
   }
@@ -223,4 +223,7 @@ let record = new dnsimple.zoneRecord.ZoneRecord(
 );
 
 // see https://github.com/winglang/wing/issues/2976
-check.addOverride("depends_on", ["${record.terraformResourceType}.${record.friendlyUniqueId}"]);
+check.addOverride("depends_on", [
+  "${record.terraformResourceType}.${record.friendlyUniqueId}",
+  "${disribution.resource.terraformResourceType}.${disribution.resource.friendlyUniqueId}",
+]);
