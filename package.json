@@ -12,6 +12,7 @@
     "@aws-sdk/client-cloudfront": "^3.354.0",
     "@cdktf/provider-aws": "^15.0.0",
     "@cdktf/provider-dnsimple": "^6.0.0",
+    "@cdktf/provider-http": "^6.0.0",
     "@cdktf/provider-null": "^7.0.0",
     "cdktf": "^0.17.0"
   },
