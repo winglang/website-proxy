@@ -11,7 +11,7 @@ let check = new httpProvider.dataHttp.DataHttp(
   url: "https://www.winglang.io",
   lifecycle: cdktf.TerraformResourceLifecycle {
     postcondition: [cdktf.Postcondition {
-      condition: "\${contains([200], self.status_code)}",
+      condition: "\${contains([400], self.status_code)}",
       errorMessage: "Expected status code 200"
     }]
   }
