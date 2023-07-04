@@ -12,12 +12,12 @@ let learnSubDomain = "learn";
 let docsHandlerFile = new cdktf.TerraformAsset(
   path: "./docs.redirect.handler.js",
   type: cdktf.AssetType.FILE
-);
+) as "docs.cdktf.TerraformAsset";
 
 let learnHandlerFile = new cdktf.TerraformAsset(
   path: "./learn.docs.redirect.handler.js",
   type: cdktf.AssetType.FILE
-);
+) as "learn.cdktf.TerraformAsset";
 
 let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   name: "redirect",
@@ -25,7 +25,7 @@ let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   code: cdktf.Fn.file(docsHandlerFile.path),
   runtime: "cloudfront-js-1.0",
   publish: true
-);
+) as "docs.aws.cloudfrontFunction.CloudfrontFunction";
 
 let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   name: "redirect",
@@ -33,7 +33,7 @@ let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   code: cdktf.Fn.file(learnHandlerFile.path),
   runtime: "cloudfront-js-1.0",
   publish: true
-);
+) as "learn.aws.cloudfrontFunction.CloudfrontFunction";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
