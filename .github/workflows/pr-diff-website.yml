@@ -22,7 +22,7 @@ env:
   DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
 
 jobs:
-  diff:
+  diff-website:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -38,4 +38,22 @@ jobs:
         with:
           entry: 'main.w'
           target: 'tf-aws'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+  diff-redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_READ_ONLY }}
+          role-session-name: gh-actions-winglang-website-proxy-diff
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Deploy Winglang App
+        uses: winglang/wing-github-action/actions/pull-request-diff@main
+        with:
+          entry: 'redirect.w'
+          target: 'tf-aws'
+          backend-scope: 'redirect'
           github-token: ${{ secrets.GITHUB_TOKEN }}
