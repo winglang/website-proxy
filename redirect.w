@@ -152,7 +152,6 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
 };
 
 // docs subdomain
-
 let docsDistribution = createDistribution(docsSubDomain, zoneName, docsHandler);
 new dnsimple.zoneRecord.ZoneRecord(
   name: docsSubDomain,
@@ -160,7 +159,7 @@ new dnsimple.zoneRecord.ZoneRecord(
   value: docsDistribution.domainName,
   zoneName: zoneName,
   ttl: 60
-);
+) as "docs.dnsimple.zoneRecord.ZoneRecord";
 
 // learn subdomain
 let learnDistribution = createDistribution(learnSubDomain, zoneName, learnHandler);
@@ -170,4 +169,4 @@ new dnsimple.zoneRecord.ZoneRecord(
   value: learnDistribution.domainName,
   zoneName: zoneName,
   ttl: 60
-);
+) as "learn.dnsimple.zoneRecord.ZoneRecord";
