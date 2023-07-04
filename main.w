@@ -162,8 +162,8 @@ class ReverseProxyDistribution {
         this.targetBehavior("docs","/terms-and-policies"),
         this.targetBehavior("docs","/terms-and-policies/*"),
         // learn site
-        this.targetBehavior("learn","/learn"),
         this.targetBehavior("learn","/learn/*"),
+        this.targetBehavior("learn","/learn"),
       ],
     );
 
