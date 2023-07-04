@@ -2,26 +2,15 @@ bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
 bring "@cdktf/provider-dnsimple" as dnsimple;
-bring "@cdktf/provider-http" as httpProvider;
 
-new httpProvider.provider.HttpProvider();
 new dnsimple.provider.DnsimpleProvider();
-
-let check = new httpProvider.dataHttp.DataHttp(
-  url: "https://www.winglang.io",
-  lifecycle: cdktf.TerraformResourceLifecycle {
-    postcondition: [cdktf.Postcondition {
-      condition: "\${contains([200], self.status_code)}",
-      errorMessage: "Expected status code 200"
-    }]
-  }
-);
 
 let zoneName = "winglang.io";
 let subDomain = "www";
 
 let defaultOrigin = "webflow.winglang.io";
 let docsOrigin = "docsite-omega.vercel.app";
+let learnOrigin = "playground-tour.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
@@ -130,6 +119,10 @@ class ReverseProxyDistribution {
         domainName: docsOrigin,
       },
       {
+        originId: "learn",
+        domainName: learnOrigin,
+      },
+      {
         originId: "home",
         domainName: defaultOrigin,
       }],
@@ -137,6 +130,9 @@ class ReverseProxyDistribution {
       aliases: aliases,
 
       defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
+        minTtl: 0,
+        defaultTtl: 60,
+        maxTtl: 86400,
         allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
         cachedMethods: ["GET", "HEAD"],
         targetOriginId: "home",
@@ -145,16 +141,20 @@ class ReverseProxyDistribution {
       },
 
       orderedCacheBehavior: [
-        this.docsBehavior("/docs"),
-        this.docsBehavior("/blog"),
-        this.docsBehavior("/docs/*"),
-        this.docsBehavior("/blog/*"),
-        this.docsBehavior("/assets/*"),
-        this.docsBehavior("/img/*"),
-        this.docsBehavior("/contributing"),
-        this.docsBehavior("/contributing/*"),
-        this.docsBehavior("/terms-and-policies"),
-        this.docsBehavior("/terms-and-policies/*"),
+        // docs site
+        this.targetBehavior("docs","/docs"),
+        this.targetBehavior("docs","/blog"),
+        this.targetBehavior("docs","/docs/*"),
+        this.targetBehavior("docs","/blog/*"),
+        this.targetBehavior("docs","/assets/*"),
+        this.targetBehavior("docs","/img/*"),
+        this.targetBehavior("docs","/contributing"),
+        this.targetBehavior("docs","/contributing/*"),
+        this.targetBehavior("docs","/terms-and-policies"),
+        this.targetBehavior("docs","/terms-and-policies/*"),
+        // learn site
+        this.targetBehavior("learn","/learn"),
+        this.targetBehavior("learn","/learn/*"),
       ],
     );
 
@@ -169,12 +169,15 @@ class ReverseProxyDistribution {
     return this.resource.hostedZoneId;
   }
 
-  docsBehavior(pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
+  targetBehavior(targetOriginId: str, pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
     return aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
       pathPattern: pathPattern,
+      minTtl: 0,
+      defaultTtl: 60,
+      maxTtl: 86400,
       allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
       cachedMethods: ["GET", "HEAD"],
-      targetOriginId: "docs",
+      targetOriginId: targetOriginId,
       viewerProtocolPolicy: "redirect-to-https",
       cachePolicyId: this.policy.id,
     };
@@ -182,14 +185,22 @@ class ReverseProxyDistribution {
 
   // this should be part of the origin definition above, but there's a bug https://github.com/winglang/wing/issues/2597
   patchOriginConfig() {
+    // docs
     this.resource.addOverride("origin.0.custom_origin_config", {
       http_port: 80,
       https_port: 443,
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
       origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
     });
-
+    // learn
     this.resource.addOverride("origin.1.custom_origin_config", {
+      http_port: 80,
+      https_port: 443,
+      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
+      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
+    });
+    // home
+    this.resource.addOverride("origin.2.custom_origin_config", {
       http_port: 80,
       https_port: 443,
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
@@ -208,16 +219,10 @@ let disribution = new ReverseProxyDistribution(
   cert: cert
 );
 
-let record = new dnsimple.zoneRecord.ZoneRecord(
+new dnsimple.zoneRecord.ZoneRecord(
   name: subDomain,
   type: "CNAME",
   value: disribution.domainName(),
   zoneName: zoneName,
-  ttl: 60,
+  ttl: 60
 );
-
-// see https://github.com/winglang/wing/issues/2976
-check.addOverride("depends_on", [
-  "${record.terraformResourceType}.${record.friendlyUniqueId}",
-  "${disribution.resource.terraformResourceType}.${disribution.resource.friendlyUniqueId}",
-]);
