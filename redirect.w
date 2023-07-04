@@ -10,7 +10,7 @@ let docsSubDomain = "docs";
 let learnSubDomain = "learn";
 
 let docsHandlerFile = new cdktf.TerraformAsset(
-  path: "./docs.docs.redirect.handler.js",
+  path: "./docs.redirect.handler.js",
   type: cdktf.AssetType.FILE
 );
 
