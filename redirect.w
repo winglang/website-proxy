@@ -93,7 +93,7 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
   let cert = new DnsimpleValidatedCertificate(
     domainName: "${subDomain}.${zoneName}",
     zoneName: zoneName
-  );
+  ) as "${subDomain}.DnsimpleValidatedCertificate";
 
   let distribution = new aws.cloudfrontDistribution.CloudfrontDistribution(
     enabled: true,
@@ -139,7 +139,7 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
         queryString: true
       }
     },
-  );
+  ) as "${subDomain}.aws.cloudfrontDistribution.CloudfrontDistribution";
 
   distribution.addOverride("origin.0.custom_origin_config", {
     http_port: 80,
