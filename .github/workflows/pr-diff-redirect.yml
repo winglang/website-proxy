@@ -1,4 +1,4 @@
-name: Pull Request website Diff
+name: Pull Request redirect Diff
 
 on:
   pull_request:
@@ -37,6 +37,6 @@ jobs:
         uses: winglang/wing-github-action/actions/pull-request-diff@main
         with:
           version: '0.21.5'
-          entry: 'main.w'
+          entry: 'redirect.w'
           target: 'tf-aws'
           github-token: ${{ secrets.GITHUB_TOKEN }}
