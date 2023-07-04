@@ -1,4 +1,4 @@
-name: Pull Request website Diff
+name: Pull Request Diff
 
 on:
   pull_request:
