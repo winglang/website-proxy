@@ -15,7 +15,7 @@ let docsHandlerFile = new cdktf.TerraformAsset(
 ) as "docs.cdktf.TerraformAsset";
 
 let learnHandlerFile = new cdktf.TerraformAsset(
-  path: "./learn.docs.redirect.handler.js",
+  path: "./learn.redirect.handler.js",
   type: cdktf.AssetType.FILE
 ) as "learn.cdktf.TerraformAsset";
 
