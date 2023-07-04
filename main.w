@@ -22,6 +22,7 @@ let subDomain = "www";
 
 let defaultOrigin = "webflow.winglang.io";
 let docsOrigin = "docsite-omega.vercel.app";
+let learnOrigin = "playground-tour.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
@@ -130,6 +131,10 @@ class ReverseProxyDistribution {
         domainName: docsOrigin,
       },
       {
+        originId: "learn",
+        domainName: learnOrigin,
+      },
+      {
         originId: "home",
         domainName: defaultOrigin,
       }],
@@ -145,16 +150,20 @@ class ReverseProxyDistribution {
       },
 
       orderedCacheBehavior: [
-        this.docsBehavior("/docs"),
-        this.docsBehavior("/blog"),
-        this.docsBehavior("/docs/*"),
-        this.docsBehavior("/blog/*"),
-        this.docsBehavior("/assets/*"),
-        this.docsBehavior("/img/*"),
-        this.docsBehavior("/contributing"),
-        this.docsBehavior("/contributing/*"),
-        this.docsBehavior("/terms-and-policies"),
-        this.docsBehavior("/terms-and-policies/*"),
+        // docs site
+        this.targetBehavior("docs","/docs"),
+        this.targetBehavior("docs","/blog"),
+        this.targetBehavior("docs","/docs/*"),
+        this.targetBehavior("docs","/blog/*"),
+        this.targetBehavior("docs","/assets/*"),
+        this.targetBehavior("docs","/img/*"),
+        this.targetBehavior("docs","/contributing"),
+        this.targetBehavior("docs","/contributing/*"),
+        this.targetBehavior("docs","/terms-and-policies"),
+        this.targetBehavior("docs","/terms-and-policies/*"),
+        // learn site
+        this.targetBehavior("learn","/learn"),
+        this.targetBehavior("learn","/learn/*"),
       ],
     );
 
@@ -169,12 +178,12 @@ class ReverseProxyDistribution {
     return this.resource.hostedZoneId;
   }
 
-  docsBehavior(pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
+  targetBehavior(targetOriginId: str, pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
     return aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
       pathPattern: pathPattern,
       allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
       cachedMethods: ["GET", "HEAD"],
-      targetOriginId: "docs",
+      targetOriginId: targetOriginId,
       viewerProtocolPolicy: "redirect-to-https",
       cachePolicyId: this.policy.id,
     };
@@ -182,14 +191,22 @@ class ReverseProxyDistribution {
 
   // this should be part of the origin definition above, but there's a bug https://github.com/winglang/wing/issues/2597
   patchOriginConfig() {
+    // docs
     this.resource.addOverride("origin.0.custom_origin_config", {
       http_port: 80,
       https_port: 443,
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
       origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
     });
-
+    // learn
     this.resource.addOverride("origin.1.custom_origin_config", {
+      http_port: 80,
+      https_port: 443,
+      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
+      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
+    });
+    // home
+    this.resource.addOverride("origin.2.custom_origin_config", {
       http_port: 80,
       https_port: 443,
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
