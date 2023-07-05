@@ -20,7 +20,7 @@ let learnHandlerFile = new cdktf.TerraformAsset(
 ) as "learn.cdktf.TerraformAsset";
 
 let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
-  name: "redirect",
+  name: "redirect-docs",
   comment: "Redirects to the docs subdomain",
   code: cdktf.Fn.file(docsHandlerFile.path),
   runtime: "cloudfront-js-1.0",
@@ -28,7 +28,7 @@ let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
 ) as "docs.aws.cloudfrontFunction.CloudfrontFunction";
 
 let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
-  name: "redirect",
+  name: "learn-redirect",
   comment: "Redirects to the learn subdomain",
   code: cdktf.Fn.file(learnHandlerFile.path),
   runtime: "cloudfront-js-1.0",
