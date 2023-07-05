@@ -22,7 +22,7 @@ let subDomain = "www";
 
 let defaultOrigin = "webflow.winglang.io";
 let docsOrigin = "docsite-omega.vercel.app";
-let learnOrigin = "learn-test-git-rewrite-test-monada.vercel.app";
+let learnOrigin = "playground-tour.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
