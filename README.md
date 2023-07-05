@@ -33,7 +33,7 @@ I've checked the Webflow url path structure, and it looks like that all assets a
 - [x] Github Action for deployment
 - [x] Is there some website monitoring in place somewhere (should be updated or created)? Yes, there is. See #alert in Slack
 - [x] Use correct domain rather than the winglang.ai placeholder (in [./redirect.w](./redirect.w) and [./main.w](./main.w))
-- [x] Make sure to update [redirect handler](./redirect.handler.js) as well
+- [x] Make sure to update [redirect handler](./docs.redirect.handler.js) as well
 
 Depending on if this repo should be open sourced or not, the dnsimple handling could either stay here and being handled automatically as it is right now or remove it after the intial deployment (if open sourcing). If the dnsimple tokens were leaked for some reason, this would be pretty bad. While it's possible in dnsimple to have "zone manager" users and limit them to one domain only, it's not possible to be more granular than that.
 
@@ -47,7 +47,7 @@ A pure redirect Cloudfront distribution, redirecting:
 
 That's implemented via [Cloudfront Functions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html) for simplicity reasons.
 
-See [./redirect.w](./redirect.w) and [./redirect.handler.js](./redirect.handler.js) and the tests [./redirect.handler.test.js](./redirect.handler.test.js)
+See [./redirect.w](./redirect.w) and [./docs.redirect.handler.js](./docs.redirect.handler.js) and the tests [./redirect.handler.test.js](./redirect.handler.test.js)
 
 The test can be executed after the distribution is deployed. Can be simplified and inlined into Wing once https://github.com/winglang/wing/issues/1878 is there.
 

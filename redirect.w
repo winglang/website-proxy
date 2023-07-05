@@ -6,20 +6,34 @@ bring "@cdktf/provider-dnsimple" as dnsimple;
 new dnsimple.provider.DnsimpleProvider();
 
 let zoneName = "winglang.io";
-let subDomain = "docs";
+let docsSubDomain = "docs";
+let learnSubDomain = "learn";
 
-let handlerFile = new cdktf.TerraformAsset(
-  path: "./redirect.handler.js",
+let docsHandlerFile = new cdktf.TerraformAsset(
+  path: "./docs.redirect.handler.js",
   type: cdktf.AssetType.FILE
-);
+) as "docs.cdktf.TerraformAsset";
 
-let handler = new aws.cloudfrontFunction.CloudfrontFunction(
+let learnHandlerFile = new cdktf.TerraformAsset(
+  path: "./learn.redirect.handler.js",
+  type: cdktf.AssetType.FILE
+) as "learn.cdktf.TerraformAsset";
+
+let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   name: "redirect",
   comment: "Redirects to the docs subdomain",
-  code: cdktf.Fn.file(handlerFile.path),
+  code: cdktf.Fn.file(docsHandlerFile.path),
   runtime: "cloudfront-js-1.0",
   publish: true
-);
+) as "docs.aws.cloudfrontFunction.CloudfrontFunction";
+
+let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
+  name: "redirect",
+  comment: "Redirects to the learn subdomain",
+  code: cdktf.Fn.file(learnHandlerFile.path),
+  runtime: "cloudfront-js-1.0",
+  publish: true
+) as "learn.aws.cloudfrontFunction.CloudfrontFunction";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
@@ -74,68 +88,85 @@ class DnsimpleValidatedCertificate {
   }
 }
 
-let cert = new DnsimpleValidatedCertificate(
-  domainName: "${subDomain}.${zoneName}",
-  zoneName: zoneName
-);
+// creates distribution with cert and cloudfront function
+let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfrontFunction.CloudfrontFunction): aws.cloudfrontDistribution.CloudfrontDistribution => {
+  let cert = new DnsimpleValidatedCertificate(
+    domainName: "${subDomain}.${zoneName}",
+    zoneName: zoneName
+  ) as "${subDomain}.DnsimpleValidatedCertificate";
 
-let disribution = new aws.cloudfrontDistribution.CloudfrontDistribution(
-  enabled: true,
-  isIpv6Enabled: true,
+  let distribution = new aws.cloudfrontDistribution.CloudfrontDistribution(
+    enabled: true,
+    isIpv6Enabled: true,
 
-  viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
-    acmCertificateArn: cert.resource.arn,
-    sslSupportMethod: "sni-only"
-  },
+    viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
+      acmCertificateArn: cert.resource.arn,
+      sslSupportMethod: "sni-only"
+    },
 
-  restrictions: aws.cloudfrontDistribution.CloudfrontDistributionRestrictions {
-    geoRestriction: aws.cloudfrontDistribution.CloudfrontDistributionRestrictionsGeoRestriction {
-      restrictionType: "none"
-    }
-  },
+    restrictions: aws.cloudfrontDistribution.CloudfrontDistributionRestrictions {
+      geoRestriction: aws.cloudfrontDistribution.CloudfrontDistributionRestrictionsGeoRestriction {
+        restrictionType: "none"
+      }
+    },
 
-  origin: [{
-    originId: "stub",
-    domainName: "stub.${zoneName}",
-  }],
-
-  aliases: [
-    "${subDomain}.${zoneName}",
-  ],
-
-  defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
-    minTtl: 0,
-    defaultTtl: 60,
-    maxTtl: 86400,
-    allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
-    cachedMethods: ["GET", "HEAD"],
-    targetOriginId: "stub",
-    viewerProtocolPolicy: "redirect-to-https",
-    functionAssociation: [{
-      eventType: "viewer-request",
-      functionArn: handler.arn
+    origin: [{
+      originId: "stub",
+      domainName: "stub.${zoneName}",
     }],
-    forwardedValues: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValues {
-      cookies: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValuesCookies {
-        forward: "all"
-      },
-      headers: ["Accept-Datetime", "Accept-Encoding", "Accept-Language", "User-Agent", "Referer", "Origin", "X-Forwarded-Host"],
-      queryString: true
-    }
-  },
-);
 
-disribution.addOverride("origin.0.custom_origin_config", {
-  http_port: 80,
-  https_port: 443,
-  origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-  origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-});
+    aliases: [
+      "${subDomain}.${zoneName}",
+    ],
 
+    defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
+      minTtl: 0,
+      defaultTtl: 60,
+      maxTtl: 86400,
+      allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
+      cachedMethods: ["GET", "HEAD"],
+      targetOriginId: "stub",
+      viewerProtocolPolicy: "redirect-to-https",
+      functionAssociation: [{
+        eventType: "viewer-request",
+        functionArn: handler.arn
+      }],
+      forwardedValues: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValues {
+        cookies: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValuesCookies {
+          forward: "all"
+        },
+        headers: ["Accept-Datetime", "Accept-Encoding", "Accept-Language", "User-Agent", "Referer", "Origin", "X-Forwarded-Host"],
+        queryString: true
+      }
+    },
+  ) as "${subDomain}.aws.cloudfrontDistribution.CloudfrontDistribution";
+
+  distribution.addOverride("origin.0.custom_origin_config", {
+    http_port: 80,
+    https_port: 443,
+    origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
+    origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
+  });
+
+  return distribution;
+};
+
+// docs subdomain
+let docsDistribution = createDistribution(docsSubDomain, zoneName, docsHandler);
 new dnsimple.zoneRecord.ZoneRecord(
-  name: subDomain,
+  name: docsSubDomain,
   type: "CNAME",
-  value: disribution.domainName,
+  value: docsDistribution.domainName,
   zoneName: zoneName,
   ttl: 60
-);
+) as "docs.dnsimple.zoneRecord.ZoneRecord";
+
+// learn subdomain
+let learnDistribution = createDistribution(learnSubDomain, zoneName, learnHandler);
+new dnsimple.zoneRecord.ZoneRecord(
+  name: learnSubDomain,
+  type: "CNAME",
+  value: learnDistribution.domainName,
+  zoneName: zoneName,
+  ttl: 60
+) as "learn.dnsimple.zoneRecord.ZoneRecord";
