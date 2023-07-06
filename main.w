@@ -23,6 +23,8 @@ let subDomain = "www";
 let defaultOrigin = "webflow.winglang.io";
 let docsOrigin = "docsite-omega.vercel.app";
 let learnOrigin = "playground-tour.vercel.app";
+// temp for testing
+let playOrigin = "playground-git-play-single-domain-monada.vercel.app";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
@@ -135,6 +137,10 @@ class ReverseProxyDistribution {
         domainName: learnOrigin,
       },
       {
+        originId: "play",
+        domainName: playOrigin,
+    },
+      {
         originId: "home",
         domainName: defaultOrigin,
       }],
@@ -164,6 +170,9 @@ class ReverseProxyDistribution {
         // learn site
         this.targetBehavior("learn","/learn/*"),
         this.targetBehavior("learn","/learn"),
+        // play site
+        this.targetBehavior("play","/play/*"),
+        this.targetBehavior("play","/play"),
       ],
     );
 
@@ -205,8 +214,15 @@ class ReverseProxyDistribution {
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
       origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
     });
-    // home
+    // play
     this.resource.addOverride("origin.2.custom_origin_config", {
+      http_port: 80,
+      https_port: 443,
+      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
+      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
+    });
+    // home
+    this.resource.addOverride("origin.3.custom_origin_config", {
       http_port: 80,
       https_port: 443,
       origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
