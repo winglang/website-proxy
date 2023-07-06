@@ -2,10 +2,10 @@ function handler(event) {
     var request = event.request;
     var newurl;
 
-    if(request.uri.startsWith('/learn')) {
+    if(request.uri.startsWith('/play')) {
         newurl = `https://www.winglang.io${request.uri}`;
     } else {
-        newurl = `https://www.winglang.io/learn${request.uri}`;
+        newurl = `https://www.winglang.io/play${request.uri}`;
     }
 
     // If there are querystring parameters, add them to the newurl.
