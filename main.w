@@ -15,7 +15,7 @@ let check = new httpProvider.dataHttp.DataHttp(
       errorMessage: "Expected status code 200"
     }]
   }
-);
+) as "winglang.httpProvider.dataHttp.DataHttp";
 
 let zoneName = "winglang.io";
 let subDomain = "www";
@@ -41,7 +41,7 @@ class DnsimpleValidatedCertificate {
     this.resource = new aws.acmCertificate.AcmCertificate(
       domainName: domainName,
       validationMethod: "DNS",
-    );
+    ) as "${domainName}.aws.acmCertificate.AcmCertificate";
 
     // waits for https://github.com/winglang/wing/issues/2597
     this.resource.addOverride("lifecycle", {
@@ -56,7 +56,7 @@ class DnsimpleValidatedCertificate {
       value: "replaced",
       zoneName: zoneName,
       ttl: 60,
-    );
+    ) as "${zoneName}.dnsimple.zoneRecord.ZoneRecord";
 
     // tried name: cdktf.Fn.replace("each.value.name", ".winglang.io.", ""), but that didn't work
     // since "each.value.name" isn't interpolated properly
@@ -73,7 +73,7 @@ class DnsimpleValidatedCertificate {
 
     let certValidation = new aws.acmCertificateValidation.AcmCertificateValidation(
       certificateArn: this.resource.arn
-    );
+    )as "${domainName}.aws.acmCertificateValidation.AcmCertificateValidation";
 
     certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.qualified_name]}");
   }
@@ -96,7 +96,7 @@ class ReverseProxyDistribution {
       defaultTtl: 60,
       maxTtl: 86400,
       minTtl: 0,
-      name: "winglang-proxy-cache-policy",
+      name: "winglang-io-proxy-cache-policy",
       parametersInCacheKeyAndForwardedToOrigin: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOrigin {
         cookiesConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginCookiesConfig {
           cookieBehavior: "all",
@@ -111,7 +111,7 @@ class ReverseProxyDistribution {
           queryStringBehavior: "all",
         },
       }
-    );
+    ) as "winglang.io.aws.cloudfrontCachePolicy.CloudfrontCachePolicy";
 
     this.resource = new aws.cloudfrontDistribution.CloudfrontDistribution(
       enabled: true,
@@ -174,7 +174,7 @@ class ReverseProxyDistribution {
         this.targetBehavior("play","/play/*"),
         this.targetBehavior("play","/play"),
       ],
-    );
+    ) as "winglang.io.aws.cloudfrontDistribution.CloudfrontDistribution";
 
     this.patchOriginConfig();
  }
@@ -234,12 +234,12 @@ class ReverseProxyDistribution {
 let cert = new DnsimpleValidatedCertificate(
   zoneName: zoneName,
   domainName: "${subDomain}.${zoneName}"
-);
+) as "${zoneName}.DnsimpleValidatedCertificate";
 
 let disribution = new ReverseProxyDistribution(
   aliases: ["${subDomain}.${zoneName}"],
   cert: cert
-);
+) as "${zoneName}.ReverseProxyDistribution";
 
 let record = new dnsimple.zoneRecord.ZoneRecord(
   name: subDomain,
@@ -247,7 +247,7 @@ let record = new dnsimple.zoneRecord.ZoneRecord(
   value: disribution.domainName(),
   zoneName: zoneName,
   ttl: 60,
-);
+) as "${zoneName}.dnsimple.zoneRecord.ZoneRecord";
 
 // see https://github.com/winglang/wing/issues/2976
 check.addOverride("depends_on", [
