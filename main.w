@@ -247,7 +247,7 @@ let record = new dnsimple.zoneRecord.ZoneRecord(
   value: disribution.domainName(),
   zoneName: zoneName,
   ttl: 60,
-) as "${zoneName}.dnsimple.zoneRecord.ZoneRecord";
+);
 
 // see https://github.com/winglang/wing/issues/2976
 check.addOverride("depends_on", [
