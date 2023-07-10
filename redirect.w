@@ -8,6 +8,7 @@ new dnsimple.provider.DnsimpleProvider();
 let zoneName = "winglang.io";
 let docsSubDomain = "docs";
 let learnSubDomain = "learn";
+let playSubDomain = "play";
 
 let docsHandlerFile = new cdktf.TerraformAsset(
   path: "./docs.redirect.handler.js",
@@ -18,6 +19,11 @@ let learnHandlerFile = new cdktf.TerraformAsset(
   path: "./learn.redirect.handler.js",
   type: cdktf.AssetType.FILE
 ) as "learn.cdktf.TerraformAsset";
+
+let playHandlerFile = new cdktf.TerraformAsset(
+  path: "./play.redirect.handler.js",
+  type: cdktf.AssetType.FILE
+) as "play.cdktf.TerraformAsset";
 
 let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   name: "redirect-docs",
@@ -34,6 +40,14 @@ let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
   runtime: "cloudfront-js-1.0",
   publish: true
 ) as "learn.aws.cloudfrontFunction.CloudfrontFunction";
+
+let playHandler = new aws.cloudfrontFunction.CloudfrontFunction(
+  name: "play-redirect",
+  comment: "Redirects to the play subdomain",
+  code: cdktf.Fn.file(playHandlerFile.path),
+  runtime: "cloudfront-js-1.0",
+  publish: true
+) as "play.aws.cloudfrontFunction.CloudfrontFunction";
 
 struct DnsimpleValidatedCertificateProps {
   domainName: str;
@@ -170,3 +184,13 @@ new dnsimple.zoneRecord.ZoneRecord(
   zoneName: zoneName,
   ttl: 60
 ) as "learn.dnsimple.zoneRecord.ZoneRecord";
+
+// play subdomain
+let playDistribution = createDistribution(playSubDomain, zoneName, playHandler);
+new dnsimple.zoneRecord.ZoneRecord(
+  name: playSubDomain,
+  type: "CNAME",
+  value: playDistribution.domainName,
+  zoneName: zoneName,
+  ttl: 60
+) as "play.dnsimple.zoneRecord.ZoneRecord";
