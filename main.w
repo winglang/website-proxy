@@ -234,12 +234,12 @@ class ReverseProxyDistribution {
 let cert = new DnsimpleValidatedCertificate(
   zoneName: zoneName,
   domainName: "${subDomain}.${zoneName}"
-) as "${zoneName}.DnsimpleValidatedCertificate";
+);
 
 let disribution = new ReverseProxyDistribution(
   aliases: ["${subDomain}.${zoneName}"],
   cert: cert
-) as "${zoneName}.ReverseProxyDistribution";
+);
 
 let record = new dnsimple.zoneRecord.ZoneRecord(
   name: subDomain,
