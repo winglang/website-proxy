@@ -54,4 +54,4 @@ See [./redirect.w](./redirect.w) and [./docs.redirect.handler.js](./docs.redirec
 
 The test can be executed after the distribution is deployed. Can be simplified and inlined into Wing once https://github.com/winglang/wing/issues/1878 is there.
 
-The entire redirect distribution can be dropped once the traffic goes away.
+The entire redirect distribution can be dropped once the traffic goes away
