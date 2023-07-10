@@ -14,6 +14,9 @@ This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (cur
 - `/assets/*` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/img/*` is routed to the `Docsite` (docsite-omega.vercel.app)
 
+- `/(learn|learn/*)` is routed to the `learn.winglang.io` site (playground-tour.vercel.app)
+- `/(play|play/*)` is routed to the `play.winglang.io` site (playground-monada.vercel.app)
+
 This means:
 
 - The `Homepage` can essentially add or change any url path as desired, as long as it's not conflicting with the `Docsite`. There's no change in Cloudfront neccessary.
