@@ -51,7 +51,7 @@ jobs:
           role-session-name: gh-actions-winglang-website-proxy-diff
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy Winglang App
-        uses: winglang/wing-github-action/actions/pull-request-diff@main
+        uses: winglang/wing-github-action/actions/pull-request-diff@v0.1.0
         with:
           entry: 'redirect.w'
           target: 'tf-aws'
