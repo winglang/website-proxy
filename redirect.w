@@ -2,6 +2,9 @@ bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
 bring "@cdktf/provider-dnsimple" as dnsimple;
+bring "./dnsimple-certificate.w" as dnsimpleCertificate;
+bring "./cloudfront-function.w" as cfnFn;
+bring "./smoke-test.w" as smokeTest;
 bring http;
 
 new dnsimple.provider.DnsimpleProvider();
@@ -11,99 +14,13 @@ let docsSubDomain = "docs";
 let learnSubDomain = "learn";
 let playSubDomain = "play";
 
-let docsHandlerFile = new cdktf.TerraformAsset(
-  path: "./docs.redirect.handler.js",
-  type: cdktf.AssetType.FILE
-) as "docs.cdktf.TerraformAsset";
-
-let learnHandlerFile = new cdktf.TerraformAsset(
-  path: "./learn.redirect.handler.js",
-  type: cdktf.AssetType.FILE
-) as "learn.cdktf.TerraformAsset";
-
-let playHandlerFile = new cdktf.TerraformAsset(
-  path: "./play.redirect.handler.js",
-  type: cdktf.AssetType.FILE
-) as "play.cdktf.TerraformAsset";
-
-let docsHandler = new aws.cloudfrontFunction.CloudfrontFunction(
-  name: "redirect-docs",
-  comment: "Redirects to the docs subdomain",
-  code: cdktf.Fn.file(docsHandlerFile.path),
-  runtime: "cloudfront-js-1.0",
-  publish: true
-) as "docs.aws.cloudfrontFunction.CloudfrontFunction";
-
-let learnHandler = new aws.cloudfrontFunction.CloudfrontFunction(
-  name: "learn-redirect",
-  comment: "Redirects to the learn subdomain",
-  code: cdktf.Fn.file(learnHandlerFile.path),
-  runtime: "cloudfront-js-1.0",
-  publish: true
-) as "learn.aws.cloudfrontFunction.CloudfrontFunction";
-
-let playHandler = new aws.cloudfrontFunction.CloudfrontFunction(
-  name: "play-redirect",
-  comment: "Redirects to the play subdomain",
-  code: cdktf.Fn.file(playHandlerFile.path),
-  runtime: "cloudfront-js-1.0",
-  publish: true
-) as "play.aws.cloudfrontFunction.CloudfrontFunction";
-
-struct DnsimpleValidatedCertificateProps {
-  domainName: str;
-  zoneName: str;
-}
-
-class DnsimpleValidatedCertificate {
-  resource: aws.acmCertificate.AcmCertificate;
-
-  init(props: DnsimpleValidatedCertificateProps) {
-    let domainName = props.domainName;
-    let zoneName = props.zoneName;
-
-    this.resource = new aws.acmCertificate.AcmCertificate(
-      domainName: domainName,
-      validationMethod: "DNS",
-      lifecycle: {
-        createBeforeDestroy: true
-      }
-    );
-
-    // this gets ugly, but it's the only way to get the validation records
-    // https://github.com/hashicorp/terraform-cdk/issues/2178
-    let record = new dnsimple.zoneRecord.ZoneRecord(
-      name: "replaced",
-      type: "\${each.value.type}",
-      value: "replaced",
-      zoneName: zoneName,
-      ttl: 60,
-    );
-
-    // tried name: cdktf.Fn.replace("each.value.name", ".winglang.io.", ""), but that didn't work
-    // since "each.value.name" isn't interpolated properly
-    record.addOverride("name", "\${replace(each.value.name, \".${zoneName}.\", \"\")}");
-    record.addOverride("value", "\${replace(each.value.record, \"acm-validations.aws.\", \"acm-validations.aws\")}");
-    record.addOverride("for_each", "\${{
-        for dvo in ${this.resource.fqn}.domain_validation_options : dvo.domain_name => {
-          name   = dvo.resource_record_name
-          record = dvo.resource_record_value
-          type   = dvo.resource_record_type
-        }
-      }
-    }");
-
-    let certValidation = new aws.acmCertificateValidation.AcmCertificateValidation(
-      certificateArn: this.resource.arn
-    );
-
-    certValidation.addOverride("validation_record_fqdns", "\${[for record in ${record.fqn} : record.qualified_name]}");
-  }
-}
+let docsHandler = new cfnFn.CloudfrontFunction("docs") as "docs.CloudfrontFunction";
+let learnHandler = new cfnFn.CloudfrontFunction("learn") as "learn.CloudfrontFunction";
+let playHandler = new cfnFn.CloudfrontFunction("play") as "play.CloudfrontFunction";
 
 // creates distribution with cert and cloudfront function
 let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfrontFunction.CloudfrontFunction): aws.cloudfrontDistribution.CloudfrontDistribution => {
-  let cert = new DnsimpleValidatedCertificate(
+  let cert = new dnsimpleCertificate.DnsimpleValidatedCertificate(
     domainName: "${subDomain}.${zoneName}",
     zoneName: zoneName
   ) as "${subDomain}.DnsimpleValidatedCertificate";
@@ -164,8 +81,8 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
 };
 
 // docs subdomain
-let docsDistribution = createDistribution(docsSubDomain, zoneName, docsHandler);
-new dnsimple.zoneRecord.ZoneRecord(
+let docsDistribution = createDistribution(docsSubDomain, zoneName, docsHandler.resource);
+let docsRecord = new dnsimple.zoneRecord.ZoneRecord(
   name: docsSubDomain,
   type: "CNAME",
   value: docsDistribution.domainName,
@@ -174,8 +91,8 @@ new dnsimple.zoneRecord.ZoneRecord(
 ) as "docs.dnsimple.zoneRecord.ZoneRecord";
 
 // learn subdomain
-let learnDistribution = createDistribution(learnSubDomain, zoneName, learnHandler);
-new dnsimple.zoneRecord.ZoneRecord(
+let learnDistribution = createDistribution(learnSubDomain, zoneName, learnHandler.resource);
+let learnRecord = new dnsimple.zoneRecord.ZoneRecord(
   name: learnSubDomain,
   type: "CNAME",
   value: learnDistribution.domainName,
@@ -184,8 +101,8 @@ new dnsimple.zoneRecord.ZoneRecord(
 ) as "learn.dnsimple.zoneRecord.ZoneRecord";
 
 // play subdomain
-let playDistribution = createDistribution(playSubDomain, zoneName, playHandler);
-let record = new dnsimple.zoneRecord.ZoneRecord(
+let playDistribution = createDistribution(playSubDomain, zoneName, playHandler.resource);
+let playRecord = new dnsimple.zoneRecord.ZoneRecord(
   name: playSubDomain,
   type: "CNAME",
   value: playDistribution.domainName,
@@ -193,12 +110,32 @@ let record = new dnsimple.zoneRecord.ZoneRecord(
   ttl: 60
 ) as "play.dnsimple.zoneRecord.ZoneRecord";
 
-new cloud.OnDeploy(inflight() => {
-  let domain = "${record.name}.${record.zoneName}";
-  let result = http.get("https://${domain}");
-  assert(result.status == 301);
-  assert(result.headers.get("location") == "https://www.winglang.io/play/");
-}, {
-  executeAfter: [record],
-  timeout: 10s
-});
+new smokeTest.ExpectRedirect(docsRecord, {
+  from: "/",
+  to: "https://www.winglang.io/docs/",
+}) as "smoke.docs.one";
+
+new smokeTest.ExpectRedirect(docsRecord, {
+  from: "/?bar=baz",
+  to: "https://www.winglang.io/docs/?bar=baz",
+}) as "smoke.docs.two";
+
+new smokeTest.ExpectRedirect(learnRecord, {
+  from: "/",
+  to: "https://www.winglang.io/learn/",
+}) as "smoke.learn.one";
+
+new smokeTest.ExpectRedirect(learnRecord, {
+  from: "/?bar=baz",
+  to: "https://www.winglang.io/learn/?bar=baz",
+}) as "smoke.learn.two";
+
+new smokeTest.ExpectRedirect(playRecord, {
+  from: "/",
+  to: "https://www.winglang.io/play/",
+}) as "smoke.play.one";
+
+new smokeTest.ExpectRedirect(playRecord, {
+  from: "/?bar=baz",
+  to: "https://www.winglang.io/play/?bar=baz",
+}) as "smoke.play.two";
