@@ -64,12 +64,10 @@ class DnsimpleValidatedCertificate {
     this.resource = new aws.acmCertificate.AcmCertificate(
       domainName: domainName,
       validationMethod: "DNS",
+      lifecycle: {
+        createBeforeDestroy: true
+      }
     );
-
-    // waits for https://github.com/winglang/wing/issues/2597
-    this.resource.addOverride("lifecycle", {
-      create_before_destroy: true
-    });
 
     // this gets ugly, but it's the only way to get the validation records
     // https://github.com/hashicorp/terraform-cdk/issues/2178
