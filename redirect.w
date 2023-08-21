@@ -2,6 +2,7 @@ bring cloud;
 bring "cdktf" as cdktf;
 bring "@cdktf/provider-aws" as aws;
 bring "@cdktf/provider-dnsimple" as dnsimple;
+bring http;
 
 new dnsimple.provider.DnsimpleProvider();
 
