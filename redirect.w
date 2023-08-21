@@ -127,6 +127,12 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
     origin: [{
       originId: "stub",
       domainName: "stub.${zoneName}",
+      customOriginConfig: {
+        httpPort: 80,
+        httpsPort: 443,
+        originProtocolPolicy: "http-only",
+        originSslProtocols: ["TLSv1.2", "TLSv1.1", "TLSv1"]
+      }
     }],
 
     aliases: [
@@ -154,13 +160,6 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
       }
     },
   ) as "${subDomain}.aws.cloudfrontDistribution.CloudfrontDistribution";
-
-  distribution.addOverride("origin.0.custom_origin_config", {
-    http_port: 80,
-    https_port: 443,
-    origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-    origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-  });
 
   return distribution;
 };
