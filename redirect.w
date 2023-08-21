@@ -129,7 +129,7 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
         httpPort: 80,
         httpsPort: 443,
         originProtocolPolicy: "https-only",
-        originSslProtocols: ["TLSv1.2", "TLSv1.1", "TLSv1"]
+        originSslProtocols: ["SSLv3", "TLSv1.1", "TLSv1.2"]
       }
     }],
 
