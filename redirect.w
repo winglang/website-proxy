@@ -184,10 +184,20 @@ new dnsimple.zoneRecord.ZoneRecord(
 
 // play subdomain
 let playDistribution = createDistribution(playSubDomain, zoneName, playHandler);
-new dnsimple.zoneRecord.ZoneRecord(
+let record = new dnsimple.zoneRecord.ZoneRecord(
   name: playSubDomain,
   type: "CNAME",
   value: playDistribution.domainName,
   zoneName: zoneName,
   ttl: 60
 ) as "play.dnsimple.zoneRecord.ZoneRecord";
+
+new cloud.OnDeploy(inflight() => {
+  let domain = "${record.name}.${record.zoneName}";
+  let result = http.get("https://${domain}");
+  assert(result.status == 301);
+  assert(result.headers.get("location") == "https://www.winglang.io/play/");
+}, {
+  executeAfter: [record],
+  timeout: 10s
+});
