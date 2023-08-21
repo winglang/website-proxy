@@ -113,13 +113,13 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
     enabled: true,
     isIpv6Enabled: true,
 
-    viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
+    viewerCertificate: {
       acmCertificateArn: cert.resource.arn,
       sslSupportMethod: "sni-only"
     },
 
-    restrictions: aws.cloudfrontDistribution.CloudfrontDistributionRestrictions {
-      geoRestriction: aws.cloudfrontDistribution.CloudfrontDistributionRestrictionsGeoRestriction {
+    restrictions: {
+      geoRestriction: {
         restrictionType: "none"
       }
     },
@@ -133,7 +133,7 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
       "${subDomain}.${zoneName}",
     ],
 
-    defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
+    defaultCacheBehavior: {
       minTtl: 0,
       defaultTtl: 60,
       maxTtl: 86400,
@@ -145,8 +145,8 @@ let createDistribution = (subDomain: str, zoneName: str, handler: aws.cloudfront
         eventType: "viewer-request",
         functionArn: handler.arn
       }],
-      forwardedValues: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValues {
-        cookies: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehaviorForwardedValuesCookies {
+      forwardedValues: {
+        cookies: {
           forward: "all"
         },
         headers: ["Accept-Datetime", "Accept-Encoding", "Accept-Language", "User-Agent", "Referer", "Origin", "X-Forwarded-Host"],

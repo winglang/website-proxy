@@ -9,8 +9,8 @@ new dnsimple.provider.DnsimpleProvider();
 
 let check = new httpProvider.dataHttp.DataHttp(
   url: "https://www.winglang.io",
-  lifecycle: cdktf.TerraformResourceLifecycle {
-    postcondition: [cdktf.Postcondition {
+  lifecycle: {
+    postcondition: [{
       condition: "\${contains([200], self.status_code)}",
       errorMessage: "Expected status code 200"
     }]
@@ -96,17 +96,17 @@ class ReverseProxyDistribution {
       maxTtl: 86400,
       minTtl: 0,
       name: "winglang-io-proxy-cache-policy",
-      parametersInCacheKeyAndForwardedToOrigin: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOrigin {
-        cookiesConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginCookiesConfig {
+      parametersInCacheKeyAndForwardedToOrigin: {
+        cookiesConfig: {
           cookieBehavior: "all",
         },
-        headersConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginHeadersConfig {
+        headersConfig: {
           headerBehavior: "whitelist",
-          headers: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginHeadersConfigHeaders {
+          headers: {
             items: ["Accept-Datetime", "Accept-Encoding", "Accept-Language", "User-Agent", "Referer", "Origin", "X-Forwarded-Host"],
           },
         },
-        queryStringsConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginQueryStringsConfig {
+        queryStringsConfig: {
           queryStringBehavior: "all",
         },
       }
@@ -116,13 +116,13 @@ class ReverseProxyDistribution {
       enabled: true,
       isIpv6Enabled: true,
 
-      viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
+      viewerCertificate: {
         acmCertificateArn: cert.resource.arn,
         sslSupportMethod: "sni-only"
       },
 
-      restrictions: aws.cloudfrontDistribution.CloudfrontDistributionRestrictions {
-        geoRestriction: aws.cloudfrontDistribution.CloudfrontDistributionRestrictionsGeoRestriction {
+      restrictions: {
+        geoRestriction: {
           restrictionType: "none"
         }
       },
@@ -146,7 +146,7 @@ class ReverseProxyDistribution {
 
       aliases: aliases,
 
-      defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
+      defaultCacheBehavior: {
         allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
         cachedMethods: ["GET", "HEAD"],
         targetOriginId: "home",
@@ -187,7 +187,7 @@ class ReverseProxyDistribution {
   }
 
   targetBehavior(targetOriginId: str, pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
-    return aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
+    return {
       pathPattern: pathPattern,
       allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
       cachedMethods: ["GET", "HEAD"],
