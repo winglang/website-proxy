@@ -9,8 +9,8 @@ new dnsimple.provider.DnsimpleProvider();
 
 let check = new httpProvider.dataHttp.DataHttp(
   url: "https://www.winglang.io",
-  lifecycle: cdktf.TerraformResourceLifecycle {
-    postcondition: [cdktf.Postcondition {
+  lifecycle: {
+    postcondition: [{
       condition: "\${contains([200], self.status_code)}",
       errorMessage: "Expected status code 200"
     }]
@@ -96,17 +96,17 @@ class ReverseProxyDistribution {
       maxTtl: 86400,
       minTtl: 0,
       name: "winglang-io-proxy-cache-policy",
-      parametersInCacheKeyAndForwardedToOrigin: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOrigin {
-        cookiesConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginCookiesConfig {
+      parametersInCacheKeyAndForwardedToOrigin: {
+        cookiesConfig: {
           cookieBehavior: "all",
         },
-        headersConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginHeadersConfig {
+        headersConfig: {
           headerBehavior: "whitelist",
-          headers: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginHeadersConfigHeaders {
+          headers: {
             items: ["Accept-Datetime", "Accept-Encoding", "Accept-Language", "User-Agent", "Referer", "Origin", "X-Forwarded-Host"],
           },
         },
-        queryStringsConfig: aws.cloudfrontCachePolicy.CloudfrontCachePolicyParametersInCacheKeyAndForwardedToOriginQueryStringsConfig {
+        queryStringsConfig: {
           queryStringBehavior: "all",
         },
       }
@@ -116,13 +116,13 @@ class ReverseProxyDistribution {
       enabled: true,
       isIpv6Enabled: true,
 
-      viewerCertificate: aws.cloudfrontDistribution.CloudfrontDistributionViewerCertificate {
+      viewerCertificate: {
         acmCertificateArn: cert.resource.arn,
         sslSupportMethod: "sni-only"
       },
 
-      restrictions: aws.cloudfrontDistribution.CloudfrontDistributionRestrictions {
-        geoRestriction: aws.cloudfrontDistribution.CloudfrontDistributionRestrictionsGeoRestriction {
+      restrictions: {
+        geoRestriction: {
           restrictionType: "none"
         }
       },
@@ -130,23 +130,47 @@ class ReverseProxyDistribution {
       origin: [{
         originId: "docs",
         domainName: docsOrigin,
+        customOriginConfig: {
+          httpPort: 80,
+          httpsPort: 443,
+          originProtocolPolicy: "https-only",
+          originSslProtocols: ["SSLv3", "TLSv1.2", "TLSv1.1"]
+        }
       },
       {
         originId: "learn",
         domainName: learnOrigin,
+        customOriginConfig: {
+          httpPort: 80,
+          httpsPort: 443,
+          originProtocolPolicy: "https-only",
+          originSslProtocols: ["SSLv3", "TLSv1.2", "TLSv1.1"]
+        }
       },
       {
         originId: "play",
         domainName: playOrigin,
+        customOriginConfig: {
+          httpPort: 80,
+          httpsPort: 443,
+          originProtocolPolicy: "https-only",
+          originSslProtocols: ["SSLv3", "TLSv1.2", "TLSv1.1"]
+        }
     },
       {
         originId: "home",
         domainName: defaultOrigin,
+        customOriginConfig: {
+          httpPort: 80,
+          httpsPort: 443,
+          originProtocolPolicy: "https-only",
+          originSslProtocols: ["SSLv3", "TLSv1.2", "TLSv1.1"]
+        }
       }],
 
       aliases: aliases,
 
-      defaultCacheBehavior: aws.cloudfrontDistribution.CloudfrontDistributionDefaultCacheBehavior {
+      defaultCacheBehavior: {
         allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
         cachedMethods: ["GET", "HEAD"],
         targetOriginId: "home",
@@ -174,8 +198,6 @@ class ReverseProxyDistribution {
         this.targetBehavior("play","/play"),
       ],
     ) as "winglang.io.aws.cloudfrontDistribution.CloudfrontDistribution";
-
-    this.patchOriginConfig();
  }
 
   domainName(): str {
@@ -187,7 +209,7 @@ class ReverseProxyDistribution {
   }
 
   targetBehavior(targetOriginId: str, pathPattern: str): aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
-    return aws.cloudfrontDistribution.CloudfrontDistributionOrderedCacheBehavior {
+    return {
       pathPattern: pathPattern,
       allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
       cachedMethods: ["GET", "HEAD"],
@@ -195,38 +217,6 @@ class ReverseProxyDistribution {
       viewerProtocolPolicy: "redirect-to-https",
       cachePolicyId: this.policy.id,
     };
-  }
-
-  // this should be part of the origin definition above, but there's a bug https://github.com/winglang/wing/issues/2597
-  patchOriginConfig() {
-    // docs
-    this.resource.addOverride("origin.0.custom_origin_config", {
-      http_port: 80,
-      https_port: 443,
-      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-    });
-    // learn
-    this.resource.addOverride("origin.1.custom_origin_config", {
-      http_port: 80,
-      https_port: 443,
-      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-    });
-    // play
-    this.resource.addOverride("origin.2.custom_origin_config", {
-      http_port: 80,
-      https_port: 443,
-      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-    });
-    // home
-    this.resource.addOverride("origin.3.custom_origin_config", {
-      http_port: 80,
-      https_port: 443,
-      origin_protocol_policy: cdktf.Token.asNumber("https-only"), // why, where's the type info coming from?
-      origin_ssl_protocols: cdktf.Token.asNumber(["SSLv3", "TLSv1.2", "TLSv1.1"]) // why?
-    });
   }
 }
 
