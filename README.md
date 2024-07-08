@@ -9,6 +9,7 @@ This is the Cloudfront reverse proxy for [winglang.io](https://winglang.io) (cur
 
 - by default, all requests are routed to the `Homepage` (winglang.webflow.io)
 - `/(docs|docs/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
+- `/(api|api/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/(blog|blog/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/(contributing|contributing/*)` is routed to the `Docsite` (docsite-omega.vercel.app)
 - `/assets/*` is routed to the `Docsite` (docsite-omega.vercel.app)
