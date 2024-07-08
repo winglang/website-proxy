@@ -77,7 +77,7 @@ describe("docs full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/docs/');
@@ -122,7 +122,7 @@ describe("docs full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/docs/a-nested-path');
@@ -163,10 +163,51 @@ describe("docs full integration test", () => {
       expect(functionOutput.response.statusCode).toBe(301)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/blog/12/93/a-blog-post');
+    });
+  });
+
+  describe("a api path", () => {
+    let event = Buffer.from(JSON.stringify({
+        "version": "1.0",
+        "context": {
+            "eventType": "viewer-request"
+        },
+        "viewer": {
+            "ip": "198.51.100.11"
+        },
+        "request": {
+            "method": "GET",
+            "uri": "/api/test",
+            "headers": {
+              "host": {"value": "docs.winglang.io"}
+            }
+        }
+    }))
+    let result
+
+    beforeAll(async () => {
+      const command = new TestFunctionCommand({
+        Name: fn.FunctionSummary.Name,
+        IfMatch: fn.ETag,
+        EventObject: event,
+      })
+
+      result = await client.send(command)
+    })
+
+    test("responds with 301 status code", async () => {
+      const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
+      expect(functionOutput.response.statusCode).toBe(301)
+    });
+
+    test("it redirects to new url structure", async () => {
+      const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
+      const locationHeader = functionOutput.response.headers.location.value
+      expect(locationHeader).toEqual('https://www.winglang.io/api/test');
     });
   });
 
@@ -204,7 +245,7 @@ describe("docs full integration test", () => {
       expect(functionOutput.response.statusCode).toBe(301)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/contributing/foo');
@@ -245,7 +286,7 @@ describe("docs full integration test", () => {
       expect(functionOutput.response.statusCode).toBe(301)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/terms-and-policies');
@@ -290,7 +331,7 @@ describe("docs full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/docs/a-doc-page?foo=bar&baz=qux');
@@ -350,7 +391,7 @@ describe("learn full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/learn/');
@@ -395,7 +436,7 @@ describe("learn full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/learn/a-nested-path');
@@ -441,7 +482,7 @@ describe("learn full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/learn');
@@ -486,7 +527,7 @@ describe("learn full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/learn/a-doc-page?foo=bar&baz=qux');
@@ -546,7 +587,7 @@ describe("play full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/play/');
@@ -591,7 +632,7 @@ describe("play full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/play/a-nested-path');
@@ -637,7 +678,7 @@ describe("play full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/play');
@@ -682,7 +723,7 @@ describe("play full integration test", () => {
       expect(Number(result.TestResult?.ComputeUtilization)).toBeLessThan(80)
     });
 
-    test("it redirectst to new url structure", async () => {
+    test("it redirects to new url structure", async () => {
       const functionOutput = JSON.parse(result.TestResult?.FunctionOutput)
       const locationHeader = functionOutput.response.headers.location.value
       expect(locationHeader).toEqual('https://www.winglang.io/play/a-doc-page?foo=bar&baz=qux');

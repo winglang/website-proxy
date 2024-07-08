@@ -184,6 +184,8 @@ class ReverseProxyDistribution {
         this.targetBehavior("docs","/blog"),
         this.targetBehavior("docs","/docs/*"),
         this.targetBehavior("docs","/blog/*"),
+        this.targetBehavior("docs","/api"),
+        this.targetBehavior("docs","/api/*"),
         this.targetBehavior("docs","/assets/*"),
         this.targetBehavior("docs","/img/*"),
         this.targetBehavior("docs","/contributing"),
